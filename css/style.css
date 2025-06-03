@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: #0d0a1a; /* Um azul bem escuro */
+  font-family: 'Quicksand', sans-serif;
+}
+
+canvas {
+  display: block;
+}
+
+.controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
