@@ -29,6 +29,46 @@ window.onload = function() {
         textDark: '#ecd5dd'
     };
 
+    const music = document.getElementById('background-music');
+    const musicButton = document.getElementById('music-toggle-btn');
+
+    if (music && musicButton) {
+        music.volume = 0.3;
+
+        function updateButtonAppearance() {
+            if (music.paused) {
+                musicButton.classList.add('paused');
+                musicButton.textContent = '♫';
+            } else {
+                musicButton.classList.remove('paused');
+                musicButton.textContent = '❚❚';
+            }
+        }
+
+        // Define o estado inicial do botão
+        updateButtonAppearance();
+
+        musicButton.addEventListener('click', () => {
+            if (music.paused) {
+                music.play().then(() => {
+                    // O ideal é atualizar a aparência DEPOIS que a promessa de play() é resolvida,
+                    // mas para simplificar, e como o estado 'paused' geralmente atualiza rápido,
+                    // podemos chamar diretamente.
+                    updateButtonAppearance();
+                }).catch(error => {
+                    // Lidar com erros se a música não puder ser tocada (ex: interação do usuário necessária)
+                    console.error("Erro ao tocar música:", error);
+                    updateButtonAppearance(); // Garante que o botão reflita o estado real
+                });
+            } else {
+                music.pause();
+                updateButtonAppearance(); // A pausa é síncrona, então podemos atualizar imediatamente
+            }
+        });
+    } else {
+        console.warn("Elementos de controle de música não encontrados no HTML.");
+    }
+
 
     function resize() {
         canvas.width = window.innerWidth;
