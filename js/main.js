@@ -1,4 +1,5 @@
 import  {Background} from "./background.js";
+import {Footer} from "./footer.js"
 
 window.onload = function() {
 
@@ -17,7 +18,7 @@ window.onload = function() {
 
 
         background.resize(canvas.width, canvas.height);
-        // footer.resize(canvas.width, canvas.height);
+        footer.resize(canvas.width, canvas.height);
         // menu.resize(canvas.width, canvas.height);
         // endScreen.resize(canvas.width, canvas.height);
 
@@ -47,7 +48,7 @@ window.onload = function() {
         //     game.draw(ctx);
         //     endScreen.draw(ctx, canvas.width, canvas.height);
         // }
-        // footer.draw(ctx);
+        footer.draw(ctx);
         requestAnimationFrame(animate);
     }
 

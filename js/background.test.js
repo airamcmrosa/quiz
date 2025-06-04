@@ -1,54 +1,47 @@
-import { Background } from './background.js';
+import { Background } from './background.js'; // Seu import ES6
 
-function runBackgroundTests() {
-    console.log("--- Running Background Logic Tests ---");
+// Descreve o conjunto de testes para a classe Background
+describe('Background Class', () => {
+    let mockCanvasWidth;
+    let mockCanvasHeight;
 
-    const mockCanvas = { width: 800, height: 600 };
+    beforeEach(() => {
+        // Define dimensões mock para o canvas para cada teste
+        mockCanvasWidth = 800;
+        mockCanvasHeight = 600;
+    });
 
-
-    // Test Case 1: Background should initialize with a set number of stars.
-    try {
+    // Teste 1: Verifica se o Background inicializa com o número correto de estrelas
+    it('deve inicializar com o número correto de estrelas após o resize', () => {
         const starCount = 200;
-        const background = new Background(starCount, mockCanvas.width, mockCanvas.height);
-        const expectedStarCount = starCount;
-        const actualStarCount = background.stars.length;
+        const background = new Background(starCount);
 
-        console.assert(actualStarCount === expectedStarCount, `Test Failed: Star count should be ${expectedStarCount}, but was ${actualStarCount}`);
+        // CHAMA O RESIZE AQUI! É o resize que cria as estrelas.
+        background.resize(mockCanvasWidth, mockCanvasHeight);
 
-        if (actualStarCount === expectedStarCount) {
-            console.log("✅ Test Passed: Background initialization.");
-        }
-    } catch (e) {
-        console.error("❌ Test Failed: Background initialization.", e);
-    }
+        expect(background.stars).toBeDefined(); // Verifica se background.stars existe
+        expect(background.stars.length).toBe(starCount); // Verifica o número de estrelas
+    });
 
-    // Test Case 2: Each star should have essential properties.
-    try {
-        const background = new Background(1, mockCanvas.width, mockCanvas.height);
+    // Teste 2: Verifica se cada estrela tem as propriedades essenciais
+    it('deve ter estrelas com as propriedades essenciais (x, y, size, opacity)', () => {
+        const background = new Background(1); // Cria um background com 1 estrela para facilitar
+
+        // CHAMA O RESIZE AQUI!
+        background.resize(mockCanvasWidth, mockCanvasHeight);
+
         const star = background.stars[0];
-        const properties = ['x', 'y', 'size', 'speed'];
-        let allPropertiesExist = true;
 
-        for (const prop of properties) {
-            const hasProperty = star.hasOwnProperty(prop);
-            const isNumber = typeof star[prop] === 'number';
+        expect(star).toBeDefined(); // Garante que a estrela existe
+        expect(star).toHaveProperty('x');
+        expect(typeof star.x).toBe('number');
+        expect(star).toHaveProperty('y');
+        expect(typeof star.y).toBe('number');
+        expect(star).toHaveProperty('size');
+        expect(typeof star.size).toBe('number');
+        expect(star).toHaveProperty('opacity');
+        expect(typeof star.opacity).toBe('number');
+    });
 
-            console.assert(hasProperty, `Test Failed: Star should have a '${prop}' property.`);
-            console.assert(isNumber, `Test Failed: Star property '${prop}' should be a number.`);
-
-            if (!hasProperty || !isNumber) {
-                allPropertiesExist = false;
-            }
-        }
-
-        if (allPropertiesExist) {
-            console.log("✅ Test Passed: Star property creation.");
-        }
-    } catch (e) {
-        console.error("❌ Test Failed: Star property creation.", e);
-    }
-
-    console.log("--- All Background Tests Finished ---");
-}
-
-runBackgroundTests();
+    // Você pode adicionar mais testes aqui para os métodos update e draw se desejar.
+});
