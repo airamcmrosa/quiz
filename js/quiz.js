@@ -15,6 +15,9 @@ export class Quiz {
         this.score = 0;
 
         this.quizPanelLayout = null;
+        this.userSelectedOption = null;
+        this.correctOption = null;
+        this.feedbackActive = false;
 
         this.selectGameQuestions();
         this.prepareNextQuestion();
@@ -28,6 +31,10 @@ export class Quiz {
     }
 
     prepareNextQuestion() {
+        this.userSelectedOption = null;
+        this.correctOption = null;
+        this.feedbackActive = false;
+
         if (this.currentQuestionIndex >= this.gameQuestions.length) {
 
             console.log("Quiz terminado! Pontuação:", this.score);
@@ -38,7 +45,6 @@ export class Quiz {
 
         this.currentQuestion = this.gameQuestions[this.currentQuestionIndex];
         const correctAnswer = this.currentQuestion.answer;
-        let selectedOption = this.selectedOption;
 
 
         let incorrectOptionsPool = this.allQuestions
@@ -71,6 +77,45 @@ export class Quiz {
     }
 
 
+    handleInput(x, y) {
+
+        if (!this.currentOptions || this.currentOptions.length === 0) return;
+
+        this.currentOptions.forEach(option => {
+            if (option.rect &&
+                x >= option.rect.x && x <= option.rect.x + option.rect.width &&
+                y >= option.rect.y && y <= option.rect.y + option.rect.height) {
+                console.log("Opção clicada:", option.text, "Correta?", option.isCorrect);
+
+                // this.currentQuestionIndex++;
+                // this.prepareNextQuestion();
+
+                this.checkAnswer(option);
+            }
+        });
+    }
+    checkAnswer(selectedOption) {
+        if (!this.currentQuestion) return;
+
+        this.feedbackActive = true;
+        this.userSelectedOption = selectedOption;
+        this.correctOption = this.currentOptions.find(opt => opt.isCorrect);
+
+        if (selectedOption.isCorrect) {
+            console.log("Resposta CORRETA!", selectedOption.text);
+            this.score++;
+        } else {
+            console.log("Resposta INCORRETA!", selectedOption.text, "A resposta correta era:", this.currentQuestion.answer); //
+            // Lógica de perder corações virá aqui
+        }
+
+        const feedbackDuration = 1800;
+        setTimeout(() => {
+            this.currentQuestionIndex++;
+            this.prepareNextQuestion();
+        }, feedbackDuration);
+    }
+
     resize(quizPanel) {
 
         this.quizPanelLayout = quizPanel;
@@ -86,11 +131,8 @@ export class Quiz {
     }
 
     draw(ctx, quizPanel) {
-        console.log(`[Quiz.draw] Tentando desenhar. Pergunta Atual:`, this.currentQuestion ? this.currentQuestion.question : "Nenhuma");
-        console.log(`[Quiz.draw] Opções Atuais (antes de desenhar):`, JSON.parse(JSON.stringify(this.currentOptions)));
-        console.log(`[Quiz.draw] Layout do QuizPanel recebido:`, quizPanel ? "Sim" : "Não");
 
-        if (!this.currentQuestion || !quizPanel || !quizPanel.questionTextRect || !quizPanel.questionTextRect.width) { // Adicionada verificação de width
+        if (!this.currentQuestion || !quizPanel || !quizPanel.questionTextRect || !quizPanel.questionTextRect.width) {
             console.warn("[Quiz.draw] Não vai desenhar pergunta: Pergunta atual ou layout do painel da pergunta inválido.");
             return;
         }
@@ -120,7 +162,12 @@ export class Quiz {
             // --- Desenha as Opções de Resposta ---
             const optRect = option.rect;
             const optionFontSize = Math.max(16, this.currentOptions[0].rect.height / 3.5);
-            ctx.font = `500 ${optionFontSize}px "Quicksand"`;
+
+            ctx.save();
+
+            if (this.feedbackActive && option === this.userSelectedOption && !option.isCorrect) {
+                ctx.globalAlpha = 0.4;
+            }
 
             // Desenha o fundo do botão da opção
             ctx.fillStyle = this.colors.highlight2;
@@ -128,9 +175,42 @@ export class Quiz {
             ctx.roundRect(optRect.x, optRect.y, optRect.width, optRect.height, optRect.cornerRadius || 15);
             ctx.fill();
 
+            if (this.feedbackActive && !(option === this.userSelectedOption && !option.isCorrect)) {
+                ctx.globalAlpha = 1.0;
+            }
+
+
+            if (this.feedbackActive && option === this.correctOption) {
+
+                ctx.shadowColor = this.colors.highlight1 || this.colors.gold || '#FFD700';
+                ctx.shadowBlur = 30;
+
+
+                ctx.beginPath();
+                ctx.roundRect(optRect.x, optRect.y, optRect.width, optRect.height, optRect.cornerRadius || 15);
+                ctx.stroke();
+
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = this.colors.highlight1;
+                ctx.beginPath();
+                ctx.roundRect(optRect.x, optRect.y, optRect.width, optRect.height, optRect.cornerRadius || 15);
+                ctx.fill();
+            }
+
+            if (this.feedbackActive && option === this.userSelectedOption && !option.isCorrect) {
+                // globalAlpha já está 0.4 do início do bloco
+            } else {
+                ctx.globalAlpha = 1.0; // Garante que outros textos não fiquem opacos
+            }
+
             // Desenha o texto da opção
             ctx.fillStyle = this.colors.darkcolor2;
+            ctx.font = `500 ${optionFontSize}px "Quicksand"`;
             this.wrapText(ctx, option.text, optRect.x + optRect.width / 2, optRect.y + optRect.height / 2, optRect.width * 0.9, optionFontSize * 1.2);
+
+            ctx.restore();
+
         });
     }
 
@@ -153,40 +233,6 @@ export class Quiz {
             }
         }
         ctx.fillText(line, x, currentY);
-    }
-
-
-    handleInput(x, y) {
-
-        if (!this.currentOptions || this.currentOptions.length === 0) return;
-
-        this.currentOptions.forEach(option => {
-            if (option.rect &&
-                x >= option.rect.x && x <= option.rect.x + option.rect.width &&
-                y >= option.rect.y && y <= option.rect.y + option.rect.height) {
-                console.log("Opção clicada:", option.text, "Correta?", option.isCorrect);
-
-                // this.currentQuestionIndex++;
-                // this.prepareNextQuestion();
-
-                this.checkAnswer(option);
-            }
-        });
-    }
-    checkAnswer(option) {
-        if (!this.currentQuestion) return;
-
-        if (option.isCorrect) {
-            console.log("Resposta CORRETA!", option.text);
-            this.score++;
-        } else {
-            console.log("Resposta INCORRETA!", option.text, "A resposta correta era:", this.currentQuestion.answer);
-
-        }
-
-
-        this.currentQuestionIndex++;
-        this.prepareNextQuestion();
     }
 
 

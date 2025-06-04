@@ -34,3 +34,6 @@ canvas {
   transform: scale(1.1);
   color: #F5EFFF;
 }
+#music-toggle-btn.paused {
+  opacity: 0.5;
+}

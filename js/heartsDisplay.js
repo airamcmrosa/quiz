@@ -26,7 +26,6 @@ export class HeartsDisplay {
     resize(containerRect) {
 
         if (!containerRect || !containerRect.width || !containerRect.height || containerRect.width <= 0 || containerRect.height <= 0) {
-            console.warn("HeartsDisplay.resize: containerRect inválido ou com dimensões zero/negativas.");
             this.layout.size = 0;
             return;
         }
@@ -69,13 +68,13 @@ export class HeartsDisplay {
     loseHeart() {
         if (this.currentHearts > 0) {
             this.currentHearts--;
-            console.log("Coração perdido. Restantes:", this.currentHearts);
+
         }
     }
 
     resetHearts() {
         this.currentHearts = this.totalHearts;
-        console.log("Corações resetados:", this.currentHearts);
+
     }
 
     getCurrentHearts() {

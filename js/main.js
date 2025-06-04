@@ -4,6 +4,7 @@ import {Menu} from "./menu.js"
 import {QuizPanel} from "./quizPanel.js"
 import {Quiz} from "./quiz.js"
 import { HeartsDisplay } from "./heartsDisplay.js";
+import { EndScreen } from "./endScreen.js";
 
 window.onload = function() {
 
@@ -30,10 +31,12 @@ window.onload = function() {
     const menu = new Menu();
     const quizPanel = new QuizPanel(colors);
 
+
     let gameState = 'menu';
     let game = null;
 
     const heartsDisplay = new HeartsDisplay(colors);
+    const endScreen = new EndScreen(colors, startGame);
 
 
 
@@ -86,7 +89,7 @@ window.onload = function() {
         footer.resize(canvas.width, canvas.height);
         menu.resize(canvas.width, canvas.height);
         quizPanel.resize(canvas.width, canvas.height);
-        // endScreen.resize(canvas.width, canvas.height);
+        endScreen.resize(canvas.width, canvas.height);
 
 
 
@@ -95,7 +98,6 @@ window.onload = function() {
             game.resize(quizPanel);
             if (quizPanel.heartsArea && quizPanel.heartsArea.width > 0) {
 
-                console.log("main.js resize: Chamando heartsDisplay.resize com quizPanel.heartsArea:", JSON.parse(JSON.stringify(quizPanel.heartsArea)));
                 heartsDisplay.resize(quizPanel.heartsArea);
             } else {
 
@@ -115,6 +117,7 @@ window.onload = function() {
 
     function startGame() {
         console.log("Iniciando o Quiz do main.js!");
+        heartsDisplay.resetHearts();
         game = new Quiz(colors, () => {
             console.log("Callback de fim de quiz chamado!");
             gameState = 'gameOver'; // Ou 'endScreen', dependendo do seu estado
@@ -144,6 +147,9 @@ window.onload = function() {
         } else if (gameState === 'playing' && game) {
             game.handleInput(mouseX, mouseY);
 
+        } else if (gameState === 'gameOver') {
+
+        endScreen.handleInput(mouseX, mouseY);
         }
         if (footer.footerArea && footer.footerArea.width && isClickInside(footer.footerArea, mouseX, mouseY)) {
             footer.handleInput(mouseX, mouseY);
@@ -170,6 +176,10 @@ window.onload = function() {
             heartsDisplay.draw(ctx);
             game.draw(ctx, quizPanel);
 
+        } else if (gameState === 'gameOver') {
+
+            if (game) game.draw(ctx, quizPanel);
+            endScreen.draw(ctx, canvas.width, canvas.height);
         }
         footer.draw(ctx);
         requestAnimationFrame(animate);
