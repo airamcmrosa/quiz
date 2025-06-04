@@ -1,6 +1,7 @@
 export class Footer {
-    constructor() {
+    constructor(colors) {
         this.fontSize = 10;
+        this.colors = colors;
         this.text = '© 2025 Bonjour, Maria!';
         this.footerArea = {
             x: 0,
@@ -32,7 +33,7 @@ export class Footer {
     draw(ctx) {
         if (!this.footerArea.width) return;
 
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = this.colors.textDark;
         ctx.font = `${this.fontSize}px "Press Start 2P"`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
@@ -42,10 +43,10 @@ export class Footer {
             this.footerArea.y + this.footerArea.height - (this.footerArea.height - this.fontSize) / 2
         );
     }
-    // handleInput(x, y) {
-    //
-    //     console.log('Footer clicado!');
-    //     window.location.href = this.homepageUrl;
-    // }
+    handleInput(x, y) {
+
+        console.log('Footer clicado!');
+        window.location.href = this.homepageUrl;
+    }
 
 }

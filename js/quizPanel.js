@@ -1,62 +1,77 @@
+// js/quizPanel.js
+
 export class QuizPanel {
     constructor(colors) {
         this.colors = colors;
 
         this.panelRect = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 30 };
 
-        this.heartsArea = { x: 0, y: 0, width: 0, height: 0 };
-        this.questionCounterArea = { x: 0, y: 0, width: 0, height: 0 };
-        this.questionTextRect = { x: 0, y: 0, width: 0, height: 0 };
-        this.answerOptionRects = [];
+        // Adicionando cornerRadius padrão para todos os elementos internos
+        this.heartsArea = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
+        this.questionCounterArea = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
+        this.questionTextRect = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
+        this.answerOptionRects = []; // Cada objeto aqui também terá cornerRadius
     }
 
     resize(canvasWidth, canvasHeight) {
         // --- Painel Principal ---
-        // Ocupa uma boa parte da tela, mas deixa margens
-        const panelWidth = canvasWidth * 0.85;
-        const panelHeight = canvasHeight * 0.75;
-        const panelX = (canvasWidth - panelWidth) / 2;
-        const panelY = (canvasHeight - panelHeight) / 2;
-        this.panelRect = { x: panelX, y: panelY, width: panelWidth, height: panelHeight, cornerRadius: 30 };
+        const minPanelWidth = 300;
+        const minPanelHeight = 450;
 
-        // --- Elementos Internos (posições relativas ao painel) ---
-        const padding = panelWidth * 0.05; // Espaçamento interno
+        let initialPanelWidth = canvasWidth/2 ;
+        let initialPanelHeight = canvasHeight * 0.80;
 
-        // Área dos Corações (Topo Esquerdo do Painel)
+        this.panelRect.width = Math.max(minPanelWidth, initialPanelWidth);
+        this.panelRect.height = Math.max(minPanelHeight, initialPanelHeight);
+        this.panelRect.x = (canvasWidth - this.panelRect.width) / 2;
+        this.panelRect.y = (canvasHeight - this.panelRect.height) / 2;
+        this.panelRect.cornerRadius = 30;
+
+
+        const padding = this.panelRect.width * 0.05; // Padding interno ao painel
+
         this.heartsArea = {
-            x: panelX + padding,
-            y: panelY + padding,
-            width: panelWidth * 0.2,
-            height: panelHeight * 0.1
+            ...this.heartsArea,
+            x: this.panelRect.x + padding,
+            y: this.panelRect.y + padding,
+            width: this.panelRect.width * 0.25,
+            height: this.panelRect.height * 0.08,
         };
 
         // Área do Contador de Perguntas (Topo Direito do Painel)
         this.questionCounterArea = {
-            x: panelX + panelWidth - (panelWidth * 0.25) - padding,
-            y: panelY + padding,
-            width: panelWidth * 0.25,
-            height: panelHeight * 0.1
+            ...this.questionCounterArea,
+            width: this.panelRect.width * 0.3,
+            height: this.panelRect.height * 0.08,
+            x: this.panelRect.x + this.panelRect.width - (this.panelRect.width * 0.3) - padding,
+            y: this.panelRect.y + padding,
         };
 
         // Área da Pergunta (Abaixo dos corações/contador)
         const questionAreaY = this.heartsArea.y + this.heartsArea.height + padding;
         this.questionTextRect = {
-            x: panelX + padding,
+            ...this.questionTextRect,
+            x: this.panelRect.x + padding,
             y: questionAreaY,
-            width: panelWidth - (padding * 2),
-            height: panelHeight * 0.25
+            width: this.panelRect.width - (padding * 2),
+            height: this.panelRect.height * 0.25,
         };
 
         // Áreas das Opções de Resposta (Abaixo da pergunta)
-        const answerOptionY = this.questionTextRect.y + this.questionTextRect.height + padding * 1.5;
-        const answerOptionWidth = panelWidth - (padding * 2);
-        const answerOptionHeight = (panelHeight - (answerOptionY - panelY) - (padding * 3)) / 3 - padding * 0.7; // Divide o espaço restante para 3 respostas
+        const answerOptionStartY = this.questionTextRect.y + this.questionTextRect.height + padding * 1.5;
+        const spaceForAnswersBlock = (this.panelRect.y + this.panelRect.height - padding) - answerOptionStartY;
+        const gapBetweenAnswers = padding * 0.5;
+
+        // Altura total disponível para os itens de resposta (sem os vãos)
+        const totalHeightForAnswerItems = spaceForAnswersBlock - (gapBetweenAnswers * 2);
+        const answerOptionHeight = Math.max(40, totalHeightForAnswerItems / 3);
+        const answerOptionWidth = this.panelRect.width - (padding * 2);
 
         this.answerOptionRects = [];
         for (let i = 0; i < 3; i++) {
             this.answerOptionRects.push({
-                x: panelX + padding,
-                y: answerOptionY + i * (answerOptionHeight + padding * 0.7),
+                x: this.panelRect.x + padding,
+                y: answerOptionStartY + i * (answerOptionHeight + gapBetweenAnswers),
                 width: answerOptionWidth,
                 height: answerOptionHeight,
                 cornerRadius: 15
@@ -70,32 +85,36 @@ export class QuizPanel {
         // --- Desenha o Painel Principal ---
         ctx.save();
 
-
-        ctx.shadowColor = this.colors.highlight1;
+        ctx.shadowColor = this.colors.highlight1 || '#B0A8D0';
         ctx.shadowBlur = 20;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
-
-
         ctx.fillStyle = this.colors.overlay;
         ctx.beginPath();
         ctx.roundRect(this.panelRect.x, this.panelRect.y, this.panelRect.width, this.panelRect.height, this.panelRect.cornerRadius);
         ctx.fill();
-
-
         ctx.shadowBlur = 0;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
-
         ctx.restore();
 
-        // --- (Opcional) Desenha placeholders para as áreas internas ---
+        // --- Desenha placeholders para as áreas internas com bordas arredondadas ---
 
-        ctx.strokeStyle = this.colors.highlight2;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(this.heartsArea.x, this.heartsArea.y, this.heartsArea.width, this.heartsArea.height);
-        ctx.strokeRect(this.questionCounterArea.x, this.questionCounterArea.y, this.questionCounterArea.width, this.questionCounterArea.height);
-        ctx.strokeRect(this.questionTextRect.x, this.questionTextRect.y, this.questionTextRect.width, this.questionTextRect.height);
+        ctx.strokeStyle = this.colors.highlight2 || '#A89CC8';
+        ctx.lineWidth = 2;
+
+        // Placeholder para HeartsArea
+        ctx.beginPath();
+        ctx.roundRect(this.heartsArea.x, this.heartsArea.y, this.heartsArea.width, this.heartsArea.height, this.heartsArea.cornerRadius);
+        ctx.stroke();
+
+        // Placeholder para QuestionCounterArea
+        ctx.beginPath();
+        ctx.roundRect(this.questionCounterArea.x, this.questionCounterArea.y, this.questionCounterArea.width, this.questionCounterArea.height, this.questionCounterArea.cornerRadius);
+        ctx.stroke();
+
+        // Placeholder para QuestionTextRect
+        ctx.beginPath();
+        ctx.roundRect(this.questionTextRect.x, this.questionTextRect.y, this.questionTextRect.width, this.questionTextRect.height, this.questionTextRect.cornerRadius);
+        ctx.stroke();
+
+        // Placeholders para AnswerOptionRects
         this.answerOptionRects.forEach(rect => {
             ctx.beginPath();
             ctx.roundRect(rect.x, rect.y, rect.width, rect.height, rect.cornerRadius);

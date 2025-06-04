@@ -2,6 +2,7 @@ import  {Background} from "./background.js";
 import {Footer} from "./footer.js"
 import {Menu} from "./menu.js"
 import {QuizPanel} from "./quizPanel.js"
+import {Quiz} from "./quiz.js"
 
 window.onload = function() {
 
@@ -24,7 +25,7 @@ window.onload = function() {
 
     const starCount = 200;
     const background = new Background(starCount);
-    const footer = new Footer();
+    const footer = new Footer(colors);
     const menu = new Menu();
     const quizPanel = new QuizPanel(colors);
 
@@ -84,9 +85,10 @@ window.onload = function() {
         quizPanel.resize(canvas.width, canvas.height);
         // endScreen.resize(canvas.width, canvas.height);
 
-        // if (gameState === 'playing' || gameState === 'gameOver') {
-        //     if(game) game.resize(canvas.width, canvas.height);
-        // }
+        if (gameState === 'playing' && game) {
+
+            game.resize(quizPanel);
+        }
     }
 
     window.addEventListener('resize', resize);
@@ -99,10 +101,16 @@ window.onload = function() {
     }
 
     function startGame() {
-        console.log("Iniciando o Quiz!"); // Para depuração
+        console.log("Iniciando o Quiz do main.js!");
+        // --- 2. Instanciar a classe Quiz ---
+        // Passamos as cores e uma função de callback para quando o quiz terminar (a ser implementada)
+        game = new Quiz(colors, () => {
+            console.log("Callback de fim de quiz chamado!");
+            gameState = 'gameOver'; // Ou 'endScreen', dependendo do seu estado
+            // endScreen.setScore(game.score); // Exemplo para o futuro
+        });
         gameState = 'playing';
-
-        resize()
+        resize(); // Garante que o layout do quiz seja calculado
     }
 
     function handleInteraction(event) {
@@ -122,9 +130,9 @@ window.onload = function() {
             if (menu.playButton && menu.playButton.width && isClickInside(menu.playButton, mouseX, mouseY)) {
                 startGame();
             }
-        } else if (gameState === 'playing') {
-            // Aqui chamaremos game.handleInput(mouseX, mouseY) quando a classe Quiz existir
+        } else if (gameState === 'playing' && game) {
             console.log("Clique na tela do quiz (QuizPanel visível)");
+            game.handleInput(mouseX, mouseY)
         }
         if (footer.footerArea && footer.footerArea.width && isClickInside(footer.footerArea, mouseX, mouseY)) {
             footer.handleInput(mouseX, mouseY);
@@ -146,8 +154,10 @@ window.onload = function() {
 
         if (gameState === 'menu') {
             menu.draw(ctx);
-        } else if (gameState === 'playing') {
+        } else if (gameState === 'playing' && game) {
             quizPanel.draw(ctx);
+            game.draw(ctx, quizPanel);
+
         }
         footer.draw(ctx);
         requestAnimationFrame(animate);
