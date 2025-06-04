@@ -3,6 +3,7 @@ import {Footer} from "./footer.js"
 import {Menu} from "./menu.js"
 import {QuizPanel} from "./quizPanel.js"
 import {Quiz} from "./quiz.js"
+import { HeartsDisplay } from "./heartsDisplay.js";
 
 window.onload = function() {
 
@@ -31,6 +32,8 @@ window.onload = function() {
 
     let gameState = 'menu';
     let game = null;
+
+    const heartsDisplay = new HeartsDisplay(colors);
 
 
 
@@ -85,9 +88,19 @@ window.onload = function() {
         quizPanel.resize(canvas.width, canvas.height);
         // endScreen.resize(canvas.width, canvas.height);
 
+
+
         if (gameState === 'playing' && game) {
 
             game.resize(quizPanel);
+            if (quizPanel.heartsArea && quizPanel.heartsArea.width > 0) {
+
+                console.log("main.js resize: Chamando heartsDisplay.resize com quizPanel.heartsArea:", JSON.parse(JSON.stringify(quizPanel.heartsArea)));
+                heartsDisplay.resize(quizPanel.heartsArea);
+            } else {
+
+                console.warn("main.js resize: quizPanel.heartsArea NÃO está pronto ou tem largura zero. Não chamando heartsDisplay.resize.");
+            }
         }
     }
 
@@ -102,15 +115,13 @@ window.onload = function() {
 
     function startGame() {
         console.log("Iniciando o Quiz do main.js!");
-        // --- 2. Instanciar a classe Quiz ---
-        // Passamos as cores e uma função de callback para quando o quiz terminar (a ser implementada)
         game = new Quiz(colors, () => {
             console.log("Callback de fim de quiz chamado!");
             gameState = 'gameOver'; // Ou 'endScreen', dependendo do seu estado
             // endScreen.setScore(game.score); // Exemplo para o futuro
         });
         gameState = 'playing';
-        resize(); // Garante que o layout do quiz seja calculado
+        resize();
     }
 
     function handleInteraction(event) {
@@ -131,8 +142,8 @@ window.onload = function() {
                 startGame();
             }
         } else if (gameState === 'playing' && game) {
-            console.log("Clique na tela do quiz (QuizPanel visível)");
-            game.handleInput(mouseX, mouseY)
+            game.handleInput(mouseX, mouseY);
+
         }
         if (footer.footerArea && footer.footerArea.width && isClickInside(footer.footerArea, mouseX, mouseY)) {
             footer.handleInput(mouseX, mouseY);
@@ -156,6 +167,7 @@ window.onload = function() {
             menu.draw(ctx);
         } else if (gameState === 'playing' && game) {
             quizPanel.draw(ctx);
+            heartsDisplay.draw(ctx);
             game.draw(ctx, quizPanel);
 
         }

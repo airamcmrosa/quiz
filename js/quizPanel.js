@@ -1,16 +1,14 @@
-// js/quizPanel.js
-
 export class QuizPanel {
     constructor(colors) {
         this.colors = colors;
 
         this.panelRect = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 30 };
 
-        // Adicionando cornerRadius padrão para todos os elementos internos
+
         this.heartsArea = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
         this.questionCounterArea = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
         this.questionTextRect = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
-        this.answerOptionRects = []; // Cada objeto aqui também terá cornerRadius
+        this.answerOptionRects = [];
     }
 
     resize(canvasWidth, canvasHeight) {

@@ -38,6 +38,7 @@ export class Quiz {
 
         this.currentQuestion = this.gameQuestions[this.currentQuestionIndex];
         const correctAnswer = this.currentQuestion.answer;
+        let selectedOption = this.selectedOption;
 
 
         let incorrectOptionsPool = this.allQuestions
@@ -63,6 +64,9 @@ export class Quiz {
             });
         }
 
+        console.log(`[Quiz.prepareNextQuestion] Pergunta ${this.currentQuestionIndex}:`, this.currentQuestion);
+        console.log(`[Quiz.prepareNextQuestion] Opções para pergunta ${this.currentQuestionIndex}:`, JSON.parse(JSON.stringify(this.currentOptions)));
+
         return true;
     }
 
@@ -82,7 +86,14 @@ export class Quiz {
     }
 
     draw(ctx, quizPanel) {
-        if (!this.currentQuestion || !quizPanel.questionTextRect) return;
+        console.log(`[Quiz.draw] Tentando desenhar. Pergunta Atual:`, this.currentQuestion ? this.currentQuestion.question : "Nenhuma");
+        console.log(`[Quiz.draw] Opções Atuais (antes de desenhar):`, JSON.parse(JSON.stringify(this.currentOptions)));
+        console.log(`[Quiz.draw] Layout do QuizPanel recebido:`, quizPanel ? "Sim" : "Não");
+
+        if (!this.currentQuestion || !quizPanel || !quizPanel.questionTextRect || !quizPanel.questionTextRect.width) { // Adicionada verificação de width
+            console.warn("[Quiz.draw] Não vai desenhar pergunta: Pergunta atual ou layout do painel da pergunta inválido.");
+            return;
+        }
 
         // --- Desenha a Pergunta ---
         const qRect = quizPanel.questionTextRect;
@@ -94,9 +105,13 @@ export class Quiz {
 
         this.wrapText(ctx, this.currentQuestion.question, qRect.x + qRect.width / 2, qRect.y + qRect.height / 2, qRect.width * 0.95, questionFontSize * 1.2);
 
-        if (!this.currentOptions || this.currentOptions.length === 0) return;
+        if (!this.currentOptions || this.currentOptions.length === 0) {
+            console.warn("[Quiz.draw] Não vai desenhar opções: Sem opções atuais.");
+            return;
+        }
 
-        this.currentOptions.forEach(option => {
+        this.currentOptions.forEach((option) => {
+
             if (!option.rect || typeof option.rect.height === 'undefined') {
                 console.warn("Rect da opção não está pronto para desenhar:", option);
                 return;
@@ -150,11 +165,29 @@ export class Quiz {
                 x >= option.rect.x && x <= option.rect.x + option.rect.width &&
                 y >= option.rect.y && y <= option.rect.y + option.rect.height) {
                 console.log("Opção clicada:", option.text, "Correta?", option.isCorrect);
-                // Aqui virá a lógica de checkAnswer e hearts
-                // Por enquanto, vamos apenas para a próxima pergunta para teste
-                this.currentQuestionIndex++;
-                this.prepareNextQuestion();
+
+                // this.currentQuestionIndex++;
+                // this.prepareNextQuestion();
+
+                this.checkAnswer(option);
             }
         });
     }
+    checkAnswer(option) {
+        if (!this.currentQuestion) return;
+
+        if (option.isCorrect) {
+            console.log("Resposta CORRETA!", option.text);
+            this.score++;
+        } else {
+            console.log("Resposta INCORRETA!", option.text, "A resposta correta era:", this.currentQuestion.answer);
+
+        }
+
+
+        this.currentQuestionIndex++;
+        this.prepareNextQuestion();
+    }
+
+
 }
