@@ -14,7 +14,7 @@ export class Footer {
 
 
     resize(canvasWidth, canvasHeight) {
-        this.fontSize = Math.max(10, canvasWidth / 150);
+        this.fontSize = Math.max(10, canvasWidth / 100);
         const paddingBottom = 20;
         const footerAreaHeight = this.fontSize + 10;
         const footerAreaY = canvasHeight - footerAreaHeight - paddingBottom;

@@ -11,6 +11,7 @@ window.onload = function() {
 
     const starCount = 200;
     const background = new Background(starCount);
+    const footer = new Footer();
 
     function resize() {
         canvas.width = window.innerWidth;
