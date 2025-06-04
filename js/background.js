@@ -6,7 +6,7 @@ class Star {
         this.size = Math.random() * 2 + 1;
 
         this.opacity = Math.random();
-        this.twinkleSpeed = Math.random() * 0.05;
+        this.twinkleSpeed = Math.random() * 0.015;
         this.twinkleDirection = 1;
     }
 
