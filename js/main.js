@@ -117,12 +117,11 @@ window.onload = function() {
 
     function startGame() {
         console.log("Iniciando o Quiz do main.js!");
-        heartsDisplay.resetHearts();
-        game = new Quiz(colors, () => {
+        game = new Quiz(colors, (scoreValue, reason) => {
             console.log("Callback de fim de quiz chamado!");
             gameState = 'gameOver'; // Ou 'endScreen', dependendo do seu estado
             // endScreen.setScore(game.score); // Exemplo para o futuro
-        });
+        }, heartsDisplay);
         gameState = 'playing';
         resize();
     }

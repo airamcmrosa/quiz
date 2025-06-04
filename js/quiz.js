@@ -1,9 +1,10 @@
 import { questions as allQuestionsData } from './questions.js';
 
 export class Quiz {
-    constructor(colors, onQuizEndCallback) {
+    constructor(colors, onQuizEndCallback, heartsDisplayInstance) {
         this.colors = colors;
         this.onQuizEnd = onQuizEndCallback;
+        this.heartsDisplay = heartsDisplayInstance;
 
         this.allQuestions = [...allQuestionsData];
         this.gameQuestions = [];
@@ -20,6 +21,7 @@ export class Quiz {
         this.feedbackActive = false;
 
         this.selectGameQuestions();
+        this.initializeNewQuizRound();
         this.prepareNextQuestion();
     }
 
@@ -27,7 +29,18 @@ export class Quiz {
 
         const shuffled = this.allQuestions.sort(() => 0.5 - Math.random());
         this.gameQuestions = shuffled.slice(0, 10);
+
+    }
+
+    initializeNewQuizRound() {
+        this.selectGameQuestions();
         this.currentQuestionIndex = 0;
+        this.hearts = 3;
+        this.score = 0;
+        if (this.heartsDisplay) {
+            this.heartsDisplay.resetHearts();
+        }
+        this.prepareNextQuestion();
     }
 
     prepareNextQuestion() {
@@ -95,24 +108,40 @@ export class Quiz {
         });
     }
     checkAnswer(selectedOption) {
-        if (!this.currentQuestion) return;
+        if (!this.currentQuestion  || this.feedbackActive) return;
 
         this.feedbackActive = true;
         this.userSelectedOption = selectedOption;
         this.correctOption = this.currentOptions.find(opt => opt.isCorrect);
+        let gameShouldEndByNoHearts = false;
 
         if (selectedOption.isCorrect) {
             console.log("Resposta CORRETA!", selectedOption.text);
             this.score++;
         } else {
-            console.log("Resposta INCORRETA!", selectedOption.text, "A resposta correta era:", this.currentQuestion.answer); //
-            // Lógica de perder corações virá aqui
+            console.log("Resposta INCORRETA!", selectedOption.text, "A resposta correta era:", this.currentQuestion.answer);
+            this.hearts--;
+
+            if (this.heartsDisplay) {
+                this.heartsDisplay.loseHeart();
+            }
+            console.log(`Corações restantes: ${this.hearts}`);
+            if (this.hearts <= 0) {
+                console.log("FIM DE JOGO - Sem corações restantes!");
+                gameShouldEndByNoHearts = true;
+            }
+
         }
 
         const feedbackDuration = 1800;
         setTimeout(() => {
-            this.currentQuestionIndex++;
-            this.prepareNextQuestion();
+            if (gameShouldEndByNoHearts) {
+                this.currentQuestion = null; // Para não tentar desenhar mais nada
+                if (this.onQuizEnd) this.onQuizEnd(this.score, 'no_hearts');
+            } else {
+                this.currentQuestionIndex++;
+                this.prepareNextQuestion(); // Isso também chamará onQuizEnd se as perguntas acabarem
+            }
         }, feedbackDuration);
     }
 
