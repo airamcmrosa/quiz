@@ -1,77 +1,100 @@
 export class Menu {
     constructor() {
-        this.title = 'Quiz du Zodiaque';
-        this.buttonTextPlay = 'Lancer le Quiz';
-        this.buttonTextTraduction = 'Pt-Br';
-
+        this.title = 'Caractéristiques';
+        this.title2 = 'du Zodiaque';
+        this.subtitle = 'Version Quiz'; //
+        this.buttonTextPlay = 'Lancer le Quiz'; //
 
         this.colors = {
-            gold: '#FFD700',
-            peach: '#FFCBA4',
-            text: '#F5F5F5',
-            textDark: '#4a4a4a'
+            mainAccent: '#B0A8D0',
+            btnbackground: '#232c53',
+            text: '#ecd5dd',
+            textDark: '#F5EFFF'
         };
 
 
-        this.titleFontSize = {};
-        this.buttonTextPlayGame = {};
-        this.buttonTextTraduction = {};
+        this.titleFontSize = 0;
         this.titlePosition = {};
-        this.playButton = {};
-        this.traductionButton = {};
+        this.subtitleFontSize = 0;
+        this.subtitlePosition = {};
+        this.buttonFontSize = 0;
+        this.playButton = { cornerRadius: 20 };
     }
 
     resize(canvasWidth, canvasHeight) {
-        // O cálculo do tamanho da fonte do título, agora responsivo
-        this.titleFontSize = Math.max(50, canvasWidth / 25);
-        this.buttonFontSize = Math.max(18, this.titleFontSize / 2.5);
 
-        const titleY = canvasHeight / 2 - 80;
-        const buttonY = titleY + this.titleFontSize; // Posição do botão relativa ao título
+        this.titleFontSize = Math.max(36, canvasWidth / 22);
+
+        this.subtitleFontSize = Math.max(16, this.titleFontSize * 0.5);
+
+        this.buttonFontSize = Math.max(18, canvasWidth / 38);
+
+
+        const basePadding = canvasHeight * 0.05;
+
+
+        const subtitleY = canvasHeight * 0.2;
+
+        const titleY = subtitleY + this.subtitleFontSize + basePadding * 0.9;
+        const title2Y = titleY + this.titleFontSize * 0.7 + basePadding * 0.9;
+
+        const buttonY = title2Y + this.titleFontSize * 0.7 + basePadding * 1.2;
 
         this.titlePosition = { x: canvasWidth / 2, y: titleY };
+        this.title2Position = { x: canvasWidth / 2, y: title2Y };
+        this.subtitlePosition = { x: canvasWidth / 2, y: subtitleY };
 
-        // Lógica do botão para ser sempre centralizado e responsivo
-        const btnWidth = Math.min(canvasWidth * 0.6, 350);
-        const btnHeight = 80;
+
+        const btnWidth = Math.min(canvasWidth * 0.55, 380);
+        const btnHeight = Math.max(65, canvasHeight * 0.09);
 
         this.playButton = {
+            ...this.playButton,
             width: btnWidth,
             height: btnHeight,
             x: (canvasWidth / 2) - (btnWidth / 2),
             y: buttonY,
-            text: this.buttonText,
-            cornerRadius: 20 // Raio dos cantos arredondados
+            text: this.buttonTextPlay
         };
     }
 
     draw(ctx) {
-        if (!this.playButton.width) return; // Não desenha se o resize ainda não rodou
+        if (!this.playButton.width) return;
 
         const btn = this.playButton;
 
-        // --- Desenha o Título ---
-        ctx.fillStyle = this.colors.text;
-        ctx.font = `bold ${this.titleFontSize}px "Dancing Script"`; // Usa a nova fonte
+
+        ctx.fillStyle = this.colors.mainAccent;
+        ctx.font = `bold ${this.titleFontSize}px "Dancing Script"`; //
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(this.title, this.titlePosition.x, this.titlePosition.y);
 
-        // --- Desenha o Botão ---
-        // Adiciona um efeito de brilho sutil ao botão
-        ctx.shadowColor = this.colors.gold;
+        ctx.fillStyle = this.colors.mainAccent;
+        ctx.font = `bold ${this.titleFontSize}px "Dancing Script"`; //
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.title2, this.title2Position.x, this.title2Position.y);
+
+
+        ctx.fillStyle = this.colors.text;
+        ctx.font = `${this.subtitleFontSize}px "Quicksand"`;
+        ctx.fillText(this.subtitle, this.subtitlePosition.x, this.subtitlePosition.y);
+
+
+        ctx.shadowColor = this.colors.mainAccent;
         ctx.shadowBlur = 15;
 
-        // Desenha o botão com cantos arredondados
-        ctx.fillStyle = this.colors.peach;
+        ctx.fillStyle = this.colors.btnbackground;
         ctx.beginPath();
         ctx.roundRect(btn.x, btn.y, btn.width, btn.height, btn.cornerRadius);
         ctx.fill();
 
         ctx.shadowBlur = 0;
 
+
         ctx.fillStyle = this.colors.textDark;
-        ctx.font = `500 ${this.buttonFontSize}px "Quicksand"`;
+        ctx.font = `300 ${this.buttonFontSize}px "Quicksand"`;
         ctx.fillText(btn.text, this.titlePosition.x, btn.y + btn.height / 2);
     }
 }

@@ -1,5 +1,6 @@
 import  {Background} from "./background.js";
 import {Footer} from "./footer.js"
+import {Menu} from "./menu.js"
 
 window.onload = function() {
 
@@ -12,6 +13,22 @@ window.onload = function() {
     const starCount = 200;
     const background = new Background(starCount);
     const footer = new Footer();
+    const menu = new Menu();
+
+    let gameState = 'menu';
+    let game = null;
+
+    const colors = {
+        background: '#030208',
+        overlay: 'rgba(10, 8, 31, 0.85)',
+        text: '#F5EFFF',
+        darkcolor2: '#232c53',
+        shadow: '#3c4475',
+        highlightPeach: '#92719c',
+        highlightGold: '#B0A8D0',
+        textDark: '#ecd5dd'
+    };
+
 
     function resize() {
         canvas.width = window.innerWidth;
@@ -20,7 +37,7 @@ window.onload = function() {
 
         background.resize(canvas.width, canvas.height);
         footer.resize(canvas.width, canvas.height);
-        // menu.resize(canvas.width, canvas.height);
+        menu.resize(canvas.width, canvas.height);
         // endScreen.resize(canvas.width, canvas.height);
 
         // if (gameState === 'playing' || gameState === 'gameOver') {
@@ -40,8 +57,9 @@ window.onload = function() {
         background.update();
         background.draw(ctx);
 
-        // if (gameState === 'menu') {
-        //     menu.draw(ctx);
+        if (gameState === 'menu') {
+            menu.draw(ctx);
+        }
         // } else if (gameState === 'playing' && game) {
         //     game.draw(ctx);
         // } else if (gameState === 'gameOver') {
