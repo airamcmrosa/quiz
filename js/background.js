@@ -47,6 +47,7 @@ export class Background {
             for (let i = 0; i < this.starCount; i++) {
                 this.stars.push(new Star(this.canvasWidth, this.canvasHeight));
             }
+            console.log('Estrelas criadas:', this.stars.length);
         }
     }
 

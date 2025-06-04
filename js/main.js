@@ -31,7 +31,7 @@ window.onload = function() {
 
     function animate() {
 
-        ctx.fillStyle = '#0d0a1';
+        ctx.fillStyle = '#0d0a1a';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 
