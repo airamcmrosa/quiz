@@ -5,14 +5,12 @@ import {QuizPanel} from "./quizPanel.js"
 import {Quiz} from "./quiz.js"
 import { HeartsDisplay } from "./heartsDisplay.js";
 import { EndScreen } from "./endScreen.js";
+import { SoundManager } from "./soundManager.js";
 
 window.onload = function() {
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
 
     const colors = {
         background: '#030208',
@@ -28,7 +26,16 @@ window.onload = function() {
     const starCount = 200;
     const background = new Background(starCount);
     const footer = new Footer(colors);
-    const menu = new Menu();
+    const soundManager = new SoundManager(
+        {
+            click: 'click-sound',
+            match: 'match-sound'
+        },
+        'background-music',
+        'music-toggle-btn'
+    );
+
+    const menu = new Menu(colors);
     const quizPanel = new QuizPanel(colors);
 
 
@@ -40,46 +47,6 @@ window.onload = function() {
 
 
 
-    const music = document.getElementById('background-music');
-    const musicButton = document.getElementById('music-toggle-btn');
-
-    if (music && musicButton) {
-        music.volume = 0.3;
-
-        function updateButtonAppearance() {
-            if (music.paused) {
-                musicButton.classList.add('paused');
-                musicButton.textContent = '♫';
-            } else {
-                musicButton.classList.remove('paused');
-                musicButton.textContent = '❚❚';
-            }
-        }
-
-        updateButtonAppearance();
-
-        musicButton.addEventListener('click', () => {
-            if (music.paused) {
-                music.play().then(() => {
-                    // O ideal é atualizar a aparência DEPOIS que a promessa de play() é resolvida,
-                    // mas para simplificar, e como o estado 'paused' geralmente atualiza rápido,
-                    // podemos chamar diretamente.
-                    updateButtonAppearance();
-                }).catch(error => {
-                    // Lidar com erros se a música não puder ser tocada (ex: interação do usuário necessária)
-                    console.error("Erro ao tocar música:", error);
-                    updateButtonAppearance(); // Garante que o botão reflita o estado real
-                });
-            } else {
-                music.pause();
-                updateButtonAppearance(); // A pausa é síncrona, então podemos atualizar imediatamente
-            }
-        });
-    } else {
-        console.warn("Elementos de controle de música não encontrados no HTML.");
-    }
-
-
     function resize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -87,22 +54,29 @@ window.onload = function() {
 
         background.resize(canvas.width, canvas.height);
         footer.resize(canvas.width, canvas.height);
-        menu.resize(canvas.width, canvas.height);
-        quizPanel.resize(canvas.width, canvas.height);
-        endScreen.resize(canvas.width, canvas.height);
 
 
-
-        if (gameState === 'playing' && game) {
-
+        if(gameState === 'menu') {
+            console.log("resize ok em", gameState)
+            menu.resize(canvas.width, canvas.height);
+        } else if (gameState === 'playing' && game) {
+            console.log("resize ok do", gameState)
+            quizPanel.resize(canvas.width, canvas.height);
             game.resize(quizPanel);
             if (quizPanel.heartsArea && quizPanel.heartsArea.width > 0) {
-
                 heartsDisplay.resize(quizPanel.heartsArea);
             } else {
-
                 console.warn("main.js resize: quizPanel.heartsArea NÃO está pronto ou tem largura zero. Não chamando heartsDisplay.resize.");
             }
+        } else if (gameState === 'gameOver') {
+            console.log("resize ok do", gameState)
+            quizPanel.resize(canvas.width, canvas.height);
+            if (game) {
+                game.resize(quizPanel);
+            }
+            endScreen.resize(canvas.width, canvas.height);
+        } else {
+            console.warn("rezise not working");
         }
     }
 
@@ -119,9 +93,12 @@ window.onload = function() {
         console.log("Iniciando o Quiz do main.js!");
         game = new Quiz(colors, (scoreValue, reason) => {
             console.log("Callback de fim de quiz chamado!");
-            gameState = 'gameOver'; // Ou 'endScreen', dependendo do seu estado
-            // endScreen.setScore(game.score); // Exemplo para o futuro
-        }, heartsDisplay);
+            gameState = 'gameOver';
+            if (endScreen) {
+                endScreen.setGameOverInfo(scoreValue, reason || 'all_questions_answered');
+            }
+            resize();
+        }, heartsDisplay, soundManager);
         gameState = 'playing';
         resize();
     }
@@ -167,6 +144,7 @@ window.onload = function() {
 
         background.update();
         background.draw(ctx);
+        footer.draw(ctx);
 
         if (gameState === 'menu') {
             menu.draw(ctx);
@@ -178,12 +156,18 @@ window.onload = function() {
         } else if (gameState === 'gameOver') {
 
             if (game) game.draw(ctx, quizPanel);
-            endScreen.draw(ctx, canvas.width, canvas.height);
+            if (endScreen) {
+                console.log("[Main.animate] Desenhando EndScreen. Reason:", endScreen.reasonForGameOver);
+                endScreen.draw(ctx, canvas.width, canvas.height);
+            } else {
+                console.error("[Main.animate] Instância de EndScreen não encontrada para desenhar!");
+            }
+
+
         }
-        footer.draw(ctx);
         requestAnimationFrame(animate);
+
+
     }
-
     animate();
-
 };

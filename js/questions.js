@@ -9,7 +9,7 @@ export const questions = [
         answer: "être déterminé"
     },
     {
-        question: "À quel trait de caractère on associe le signe des Gémeaux?",
+        question: "À quel trait de caractère on associe le signe du Gémeaux?",
         answer: "être curieux"
     },
     {

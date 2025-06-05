@@ -20,9 +20,7 @@ export class Quiz {
         this.correctOption = null;
         this.feedbackActive = false;
 
-        this.selectGameQuestions();
         this.initializeNewQuizRound();
-        this.prepareNextQuestion();
     }
 
     selectGameQuestions() {
@@ -48,11 +46,12 @@ export class Quiz {
         this.correctOption = null;
         this.feedbackActive = false;
 
+        console.log(`[Quiz.prepareNextQuestion] INÍCIO - Índice Atual: ${this.currentQuestionIndex}, Total Perguntas: ${this.gameQuestions.length}`);
+
         if (this.currentQuestionIndex >= this.gameQuestions.length) {
 
-            console.log("Quiz terminado! Pontuação:", this.score);
             this.currentQuestion = null;
-            if (this.onQuizEnd) this.onQuizEnd(this.score);
+            if (this.onQuizEnd) this.onQuizEnd(this.score, 'all_questions_answered');
             return false;
         }
 
@@ -136,11 +135,11 @@ export class Quiz {
         const feedbackDuration = 1800;
         setTimeout(() => {
             if (gameShouldEndByNoHearts) {
-                this.currentQuestion = null; // Para não tentar desenhar mais nada
+                this.currentQuestion = null;
                 if (this.onQuizEnd) this.onQuizEnd(this.score, 'no_hearts');
             } else {
                 this.currentQuestionIndex++;
-                this.prepareNextQuestion(); // Isso também chamará onQuizEnd se as perguntas acabarem
+                this.prepareNextQuestion();
             }
         }, feedbackDuration);
     }
@@ -160,6 +159,12 @@ export class Quiz {
     }
 
     draw(ctx, quizPanel) {
+
+        console.log("[Quiz.draw] Iniciando draw. currentQuestion:", this.currentQuestion ? this.currentQuestion.question : "NULO");
+        console.log("[Quiz.draw] quizPanel recebido:", quizPanel ? "Existe" : "NULO");
+        if (quizPanel) {
+            console.log("[Quiz.draw] quizPanel.questionTextRect:", JSON.parse(JSON.stringify(quizPanel.questionTextRect)));
+        }
 
         if (!this.currentQuestion || !quizPanel || !quizPanel.questionTextRect || !quizPanel.questionTextRect.width) {
             console.warn("[Quiz.draw] Não vai desenhar pergunta: Pergunta atual ou layout do painel da pergunta inválido.");

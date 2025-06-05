@@ -5,6 +5,10 @@ export class EndScreen {
 
         this.titleFontSize = 0;
         this.buttonFontSize = 0;
+        this.messageFontSize = 0;
+        this.scoreFontSize = 0;
+        this.reasonForGameOver = null;
+        this.finalScore = 0;
 
         this.playAgainButton = {
             x: 0, y: 0, width: 0, height: 0,
@@ -12,40 +16,63 @@ export class EndScreen {
             cornerRadius: 20
         };
 
-        this.message = 'Félicitations!';
     }
+    setGameOverInfo(score, reason) {
+        this.finalScore = score;
+        this.reasonForGameOver = reason;
+        // console.log(`[EndScreen.setGameOverInfo] Score: ${this.finalScore}, Reason: ${this.reasonForGameOver}`);
+    }
+
 
     resize(canvasWidth, canvasHeight) {
 
-        this.titleFontSize = Math.max(40, canvasWidth / 22);
-        this.buttonFontSize = Math.max(18, this.titleFontSize / 2.5);
+        this.messageFontSize = Math.max(30, canvasWidth / 28);
+        this.scoreFontSize = Math.max(20, this.messageFontSize * 0.7);
+        this.buttonFontSize = Math.max(18, this.messageFontSize / 2.2);
 
 
-        const btnWidth = Math.min(canvasWidth * 0.55, 380);
-        const btnHeight = Math.max(65, canvasHeight * 0.09);
+        const btnWidth = Math.min(canvasWidth * 0.55, 350);
+        const btnHeight = Math.max(60, canvasHeight * 0.08);
+
+        const messageAreaHeight = this.messageFontSize + this.scoreFontSize + 20;
 
         this.playAgainButton = {
             ...this.playAgainButton,
             width: btnWidth,
             height: btnHeight,
             x: canvasWidth / 2 - (btnWidth / 2),
-            y: canvasHeight / 2 + this.titleFontSize * 0.5,
+            y: canvasHeight / 2 + messageAreaHeight / 2 + 20,
         };
     }
 
     draw (ctx, canvasWidth, canvasHeight) {
+
         if (!this.playAgainButton.width) return;
 
 
         ctx.fillStyle = this.colors.overlay;
         ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
+        let mainMessage = '';
+        let scoreMessage = `Score: ${this.finalScore}`;
+
+        if (this.reasonForGameOver === 'no_hearts') {
+            mainMessage = 'Oops...Fin de jeu!';
+        } else if (this.reasonForGameOver === 'all_questions_answered') {
+            mainMessage = 'Félicitations!';
+        } else {
+            mainMessage = 'Quiz Concluído!';
+        }
+
 
         ctx.fillStyle = this.colors.text;
-        ctx.font = `bold ${this.titleFontSize}px "Dancing Script"`;
+        ctx.font = `bold ${this.messageFontSize}px "Dancing Script"`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(this.message, canvasWidth / 2, canvasHeight / 2 - this.titleFontSize * 0.7);
+        ctx.fillText(mainMessage, canvasWidth / 2, canvasHeight / 2 - this.messageFontSize * 0.8);
+
+        ctx.font = `normal ${this.scoreFontSize}px "Quicksand"`;
+        ctx.fillText(scoreMessage, canvasWidth / 2, canvasHeight / 2 - this.messageFontSize * 0.8 + this.messageFontSize * 0.9);
 
 
         const btn = this.playAgainButton;
@@ -69,7 +96,7 @@ export class EndScreen {
 
     handleInput(x, y) {
         const btn = this.playAgainButton;
-        if (btn.width && // Garante que o botão foi inicializado pelo resize
+        if (btn.width &&
             x >= btn.x && x <= btn.x + btn.width &&
             y >= btn.y && y <= btn.y + btn.height) {
             this.onRestart();

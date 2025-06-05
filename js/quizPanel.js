@@ -75,15 +75,20 @@ export class QuizPanel {
                 cornerRadius: 15
             });
         }
+        console.log("[QuizPanel.resize] Valores calculados:",
+            "panelRect:", JSON.parse(JSON.stringify(this.panelRect)),
+            "questionTextRect:", JSON.parse(JSON.stringify(this.questionTextRect))
+        );
+
     }
 
     draw(ctx) {
         if (!this.panelRect.width) return;
+        console.log("tem panelRect");
 
-        // --- Desenha o Painel Principal ---
         ctx.save();
 
-        ctx.shadowColor = this.colors.highlight1 || '#B0A8D0';
+        ctx.shadowColor = this.colors.highlight1ß;
         ctx.shadowBlur = 20;
         ctx.fillStyle = this.colors.overlay;
         ctx.beginPath();
@@ -94,7 +99,7 @@ export class QuizPanel {
 
         // --- Desenha placeholders para as áreas internas com bordas arredondadas ---
 
-        ctx.strokeStyle = this.colors.highlight2 || '#A89CC8';
+        ctx.strokeStyle = this.colors.highlight2;
         ctx.lineWidth = 2;
 
         // Placeholder para HeartsArea
