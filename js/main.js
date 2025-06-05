@@ -6,6 +6,7 @@ import {Quiz} from "./quiz.js"
 import { HeartsDisplay } from "./heartsDisplay.js";
 import { EndScreen } from "./endScreen.js";
 import { SoundManager } from "./soundManager.js";
+import { ProgressDisplay } from "./progressDisplay.js";
 
 window.onload = function() {
 
@@ -37,6 +38,7 @@ window.onload = function() {
 
     const menu = new Menu(colors, soundManager);
     const quizPanel = new QuizPanel(colors);
+    const progressDisplay = new ProgressDisplay(colors);
 
 
     let gameState = 'menu';
@@ -67,6 +69,9 @@ window.onload = function() {
                 heartsDisplay.resize(quizPanel.heartsArea);
             } else {
                 console.warn("main.js resize: quizPanel.heartsArea NÃO está pronto ou tem largura zero. Não chamando heartsDisplay.resize.");
+            }
+            if (quizPanel.questionCounterArea && quizPanel.questionCounterArea.width > 0) {
+                progressDisplay.resize(quizPanel.questionCounterArea);
             }
         } else if (gameState === 'gameOver') {
             // console.log("resize ok do", gameState)
@@ -99,6 +104,10 @@ window.onload = function() {
             }
             resize();
         }, heartsDisplay, soundManager);
+
+        if (progressDisplay) {
+            progressDisplay.setQuizInstance(game);
+        }
         gameState = 'playing';
         resize();
     }
@@ -152,6 +161,7 @@ window.onload = function() {
         } else if (gameState === 'playing' && game) {
             quizPanel.draw(ctx);
             heartsDisplay.draw(ctx);
+            if(progressDisplay) progressDisplay.draw(ctx);
             game.draw(ctx, quizPanel);
 
         } else if (gameState === 'gameOver') {

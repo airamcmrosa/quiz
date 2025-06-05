@@ -75,16 +75,12 @@ export class QuizPanel {
                 cornerRadius: 15
             });
         }
-        console.log("[QuizPanel.resize] Valores calculados:",
-            "panelRect:", JSON.parse(JSON.stringify(this.panelRect)),
-            "questionTextRect:", JSON.parse(JSON.stringify(this.questionTextRect))
-        );
 
     }
 
     draw(ctx) {
         if (!this.panelRect.width) return;
-        console.log("tem panelRect");
+        // console.log("tem panelRect");
 
         ctx.save();
 
