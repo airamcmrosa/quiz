@@ -1,9 +1,10 @@
 export class Menu {
-    constructor() {
+    constructor(soundManager) {
         this.title = 'Caractéristiques';
         this.title2 = 'du Zodiaque';
         this.subtitle = 'Version Quiz'; //
-        this.buttonTextPlay = 'Lancer le Quiz'; //
+        this.buttonTextPlay = 'Lancer le Quiz';
+        this.soundManager = soundManager;
 
         this.colors = {
             mainAccent: '#B0A8D0',

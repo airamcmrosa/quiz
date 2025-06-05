@@ -28,14 +28,14 @@ window.onload = function() {
     const footer = new Footer(colors);
     const soundManager = new SoundManager(
         {
-            click: 'click-sound',
+            click: 'card-flip',
             match: 'match-sound'
         },
         'background-music',
         'music-toggle-btn'
     );
 
-    const menu = new Menu(colors);
+    const menu = new Menu(colors, soundManager);
     const quizPanel = new QuizPanel(colors);
 
 
@@ -43,7 +43,7 @@ window.onload = function() {
     let game = null;
 
     const heartsDisplay = new HeartsDisplay(colors);
-    const endScreen = new EndScreen(colors, startGame);
+    const endScreen = new EndScreen(colors, startGame, soundManager);
 
 
 
@@ -57,10 +57,10 @@ window.onload = function() {
 
 
         if(gameState === 'menu') {
-            console.log("resize ok em", gameState)
+            // console.log("resize ok em", gameState)
             menu.resize(canvas.width, canvas.height);
         } else if (gameState === 'playing' && game) {
-            console.log("resize ok do", gameState)
+            // console.log("resize ok do", gameState)
             quizPanel.resize(canvas.width, canvas.height);
             game.resize(quizPanel);
             if (quizPanel.heartsArea && quizPanel.heartsArea.width > 0) {
@@ -69,7 +69,7 @@ window.onload = function() {
                 console.warn("main.js resize: quizPanel.heartsArea NÃO está pronto ou tem largura zero. Não chamando heartsDisplay.resize.");
             }
         } else if (gameState === 'gameOver') {
-            console.log("resize ok do", gameState)
+            // console.log("resize ok do", gameState)
             quizPanel.resize(canvas.width, canvas.height);
             if (game) {
                 game.resize(quizPanel);
@@ -118,6 +118,7 @@ window.onload = function() {
 
         if (gameState === 'menu') {
             if (menu.playButton && menu.playButton.width && isClickInside(menu.playButton, mouseX, mouseY)) {
+                if (soundManager) soundManager.playEffect('click');
                 startGame();
             }
         } else if (gameState === 'playing' && game) {

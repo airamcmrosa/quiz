@@ -1,5 +1,5 @@
 export class EndScreen {
-    constructor(colors, onRestartCallback) {
+    constructor(colors, onRestartCallback, soundManager) {
         this.onRestart = onRestartCallback;
         this.colors = colors;
 
@@ -9,6 +9,7 @@ export class EndScreen {
         this.scoreFontSize = 0;
         this.reasonForGameOver = null;
         this.finalScore = 0;
+        this.soundManager = soundManager;
 
         this.playAgainButton = {
             x: 0, y: 0, width: 0, height: 0,
@@ -99,6 +100,7 @@ export class EndScreen {
         if (btn.width &&
             x >= btn.x && x <= btn.x + btn.width &&
             y >= btn.y && y <= btn.y + btn.height) {
+            if (this.soundManager) this.soundManager.playEffect('click');
             this.onRestart();
         }
     }

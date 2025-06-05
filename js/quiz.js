@@ -1,10 +1,12 @@
 import { questions as allQuestionsData } from './questions.js';
+import { SoundManager } from './soundManager.js';
 
 export class Quiz {
-    constructor(colors, onQuizEndCallback, heartsDisplayInstance) {
+    constructor(colors, onQuizEndCallback, heartsDisplayInstance, soundManager) {
         this.colors = colors;
         this.onQuizEnd = onQuizEndCallback;
         this.heartsDisplay = heartsDisplayInstance;
+        this.soundManager = soundManager;
 
         this.allQuestions = [...allQuestionsData];
         this.gameQuestions = [];
@@ -46,7 +48,7 @@ export class Quiz {
         this.correctOption = null;
         this.feedbackActive = false;
 
-        console.log(`[Quiz.prepareNextQuestion] INÍCIO - Índice Atual: ${this.currentQuestionIndex}, Total Perguntas: ${this.gameQuestions.length}`);
+        // console.log(`[Quiz.prepareNextQuestion] INÍCIO - Índice Atual: ${this.currentQuestionIndex}, Total Perguntas: ${this.gameQuestions.length}`);
 
         if (this.currentQuestionIndex >= this.gameQuestions.length) {
 
@@ -116,9 +118,11 @@ export class Quiz {
 
         if (selectedOption.isCorrect) {
             console.log("Resposta CORRETA!", selectedOption.text);
+            this.soundManager.playEffect('match');
             this.score++;
         } else {
             console.log("Resposta INCORRETA!", selectedOption.text, "A resposta correta era:", this.currentQuestion.answer);
+            this.soundManager.playEffect('click');
             this.hearts--;
 
             if (this.heartsDisplay) {

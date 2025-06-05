@@ -10,7 +10,7 @@ export class SoundManager {
             if (element) {
                 this.sounds[key] = element;
             } else {
-                console.warn(`Elemento de áudio com ID '${soundEffectIds          [key]}' não encontrado.`);
+                console.warn(`Elemento de áudio com ID '${soundEffectIds[key]}' não encontrado.`);
             }
         }
         if (backgroundMusicId) {
